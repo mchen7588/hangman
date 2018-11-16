@@ -45,16 +45,15 @@ defmodule GameTest do
         assert game.game_state == :good_guess
     end
 
-    test "guess the whole word" do
-        game = Game.new_game("abc")
+      test "guess the whole word" do
+        game = Game.new_game()
 
-        { game, _tally } = Game.make_move(game, "a")
-        assert game.game_state == :good_guess
-        
-        { game, _tally } = Game.make_move(game, "b")
-        assert game.game_state == :good_guess
-        
-        { game, _tally } = Game.make_move(game, "c")
+        game = Enum.reduce(game.letters, game,
+            fn(letter, game) ->
+                { game, _ } = Game.make_move(game, letter)
+                game
+            end
+        )
 
         assert game.game_state == :won
     end
@@ -70,32 +69,14 @@ defmodule GameTest do
 
     test "lose the game" do
         game = Game.new_game("abc")
+        guesses = ["d", "e", "f", "g", "h", "i", "j"]
 
-        { game, _tally } = Game.make_move(game, "d")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 6
-
-        { game, _tally } = Game.make_move(game, "e")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 5
-
-        { game, _tally } = Game.make_move(game, "f")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 4
-
-        { game, _tally } = Game.make_move(game, "g")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 3
-
-        { game, _tally } = Game.make_move(game, "h")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 2
-
-        { game, _tally } = Game.make_move(game, "i")
-        assert game.game_state == :bad_guess
-        assert game.turns_left == 1
-
-        { game, _tally } = Game.make_move(game, "j")
+        game = Enum.reduce(guesses, game,
+            fn(guess, current_game) ->
+                { game, _ } = Game.make_move(current_game, guess)
+                game
+            end
+        )
 
         assert game.game_state == :lost
     end
