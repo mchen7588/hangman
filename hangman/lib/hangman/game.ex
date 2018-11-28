@@ -40,14 +40,22 @@ defmodule Hangman.Game do
     end
 
     defp calculate_game_state(game, guess) do
-        accept_move(game, guess, MapSet.member?(game.used, guess))
+        accept_move(game, String.downcase(guess), MapSet.member?(game.used, guess), validate_move(guess))
     end
 
-    defp accept_move(game, _guess, _already_guessed = true) do
+    defp validate_move(guess) do
+        String.length(guess) == 1
+    end
+
+    defp accept_move(game, _guess, _already_guessed, _valid_move = false) do
+        Map.put(game, :game_state, :invalid_move)
+    end
+
+    defp accept_move(game, _guess, _already_guessed = true, _valid_move = true) do
         Map.put(game, :game_state, :already_used)
     end
 
-    defp accept_move(game, guess, _already_guessed = false) do
+    defp accept_move(game, guess, _already_guessed = false, _valid_move = true) do
         Map.put(game, :used, MapSet.put(game.used, guess))
             |> score_guess(Enum.member?(game.letters, guess))
     end
