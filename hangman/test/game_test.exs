@@ -25,9 +25,16 @@ defmodule GameTest do
         assert MapSet.member?(game.used, "x") == true
     end
 
-    test "invalid move" do
+    test "invalid move - too many characters" do
         game = Game.new_game()
         { game, _tally } = Game.make_move(game, "xx")
+
+        assert game.game_state == :invalid_move
+    end
+
+    test "invalid move - not a letter" do
+        game = Game.new_game()
+        { game, _tally } = Game.make_move(game, "1")
 
         assert game.game_state == :invalid_move
     end
