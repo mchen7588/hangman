@@ -45,58 +45,59 @@ defmodule Hangman.Game do
 
     defp validate_move(guess) do
         %{
-            guess: guess,
+            only_one_character: only_one_character?(guess),
+            is_valid_letter: is_valid_letter?(guess),
             validity: :is_valid
         }
             |> check_length()
             |> check_letters()
     end
 
-    defp check_length(%{ guess: guess, validity: :is_valid }) do
-        cond do
-            String.length(guess) == 1 ->
-                %{
-                    guess: guess,
-                    validity: :is_valid
-                }
-            true ->
-                %{
-                    guess: guess,
-                    validity: :is_not_valid
-                }
-        end
+    defp only_one_character?(string) do
+        String.length(string) == 1
     end
 
-    defp check_length(%{ guess: guess, validity: _ }) do
-        %{
-            guess: guess,
-            validity: :is_not_valid
+    defp is_valid_letter?(string) do
+        string =~ ~r(^[a-zA-Z]*$)
+    end
+
+    defp check_length(game_validator = %{ only_one_character: true, validity: :is_valid }) do
+        %{  
+            game_validator |
+                validity: :is_valid
         }
     end
 
-    defp check_letters(%{ guess: guess, validity: :is_valid }) do
-        cond do
-            guess =~ ~r(^[a-zA-Z]*$) ->
-                %{
-                    guess: guess,
-                    validity: :is_valid
-                }
-            true ->
-                %{
-                    guess: guess,
-                    validity: :is_not_valid
-                }
-        end
+    defp check_length(game_validator = %{ only_one_character: true, validity: _not_valid }) do
+        game_validator
     end
 
-    defp check_letters(%{ guess: guess, validity: _ }) do
+    defp check_length(game_validator = %{ only_one_character: false }) do
         %{
-            guess: guess,
-            validity: :is_not_valid
+            game_validator |
+            validity: :not_valid
         }
     end
 
-    defp accept_move(game, _guess, _already_guessed, %{ validity: :is_not_valid }) do
+    defp check_letters(game_validator = %{ is_valid_letter: true, validity: :is_valid }) do
+        %{
+            game_validator |
+            validity: :is_valid
+        }
+    end
+
+    defp check_letters(game_validator = %{ is_valid_letter: true, validity: _not_valid }) do
+        game_validator
+    end
+
+    defp check_letters(game_validator = %{ is_valid_letter: false }) do
+        %{
+            game_validator |
+            validity: :not_valid
+        }
+    end
+
+    defp accept_move(game, _guess, _already_guessed, %{ validity: :not_valid }) do
         Map.put(game, :game_state, :invalid_move)
     end
 
