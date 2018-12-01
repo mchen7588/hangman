@@ -44,13 +44,9 @@ defmodule Hangman.Game do
     end
 
     defp validate_move(guess) do
-        %{
-            only_one_character: only_one_character?(guess),
-            is_valid_letter: is_valid_letter?(guess),
-            validity: :is_valid
-        }
-            |> check_length()
-            |> check_letters()
+        :is_valid
+            |> validate(only_one_character?(guess))
+            |> validate(is_valid_letter?(guess))
     end
 
     defp only_one_character?(string) do
@@ -61,51 +57,27 @@ defmodule Hangman.Game do
         string =~ ~r(^[a-zA-Z]*$)
     end
 
-    defp check_length(game_validator = %{ only_one_character: true, validity: :is_valid }) do
-        %{  
-            game_validator |
-                validity: :is_valid
-        }
+    defp validate(_validity = :is_valid, _is_valid? = true) do
+        :is_valid
     end
 
-    defp check_length(game_validator = %{ only_one_character: true, validity: _not_valid }) do
-        game_validator
+    defp validate(_validity = :is_valid, _is_valid? = false) do
+        :not_valid
     end
 
-    defp check_length(game_validator = %{ only_one_character: false }) do
-        %{
-            game_validator |
-            validity: :not_valid
-        }
+    defp validate(validity = _not_valid, _is_valid) do
+        validity
     end
 
-    defp check_letters(game_validator = %{ is_valid_letter: true, validity: :is_valid }) do
-        %{
-            game_validator |
-            validity: :is_valid
-        }
-    end
-
-    defp check_letters(game_validator = %{ is_valid_letter: true, validity: _not_valid }) do
-        game_validator
-    end
-
-    defp check_letters(game_validator = %{ is_valid_letter: false }) do
-        %{
-            game_validator |
-            validity: :not_valid
-        }
-    end
-
-    defp accept_move(game, _guess, _already_guessed, %{ validity: :not_valid }) do
+    defp accept_move(game, _guess, _already_guessed, :not_valid) do
         Map.put(game, :game_state, :invalid_move)
     end
 
-    defp accept_move(game, _guess, _already_guessed = true, %{ validity: :is_valid }) do
+    defp accept_move(game, _guess, _already_guessed = true, :is_valid) do
         Map.put(game, :game_state, :already_used)
     end
 
-    defp accept_move(game, guess, _already_guessed = false, %{ validity: :is_valid }) do
+    defp accept_move(game, guess, _already_guessed = false, :is_valid) do
         Map.put(game, :used, MapSet.put(game.used, guess))
             |> score_guess(Enum.member?(game.letters, guess))
     end
