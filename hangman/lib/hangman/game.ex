@@ -69,15 +69,15 @@ defmodule Hangman.Game do
         validity
     end
 
-    defp accept_move(game, _guess, _already_guessed, :not_valid) do
+    defp accept_move(game, _guess, _already_guessed, _is_move_valid? = :not_valid) do
         Map.put(game, :game_state, :invalid_move)
     end
 
-    defp accept_move(game, _guess, _already_guessed = true, :is_valid) do
+    defp accept_move(game, _guess, _already_guessed = true, _is_move_valid? = :is_valid) do
         Map.put(game, :game_state, :already_used)
     end
 
-    defp accept_move(game, guess, _already_guessed = false, :is_valid) do
+    defp accept_move(game, guess, _already_guessed = false, _is_move_valid? = :is_valid) do
         Map.put(game, :used, MapSet.put(game.used, guess))
             |> score_guess(Enum.member?(game.letters, guess))
     end
