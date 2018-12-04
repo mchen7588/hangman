@@ -1,8 +1,13 @@
 defmodule TextClient.Player do
     alias TextClient.State
 
-    # possible states:
-    # initializing, won, lost, good_guess, bad_guess, invalid_move, already_used
+    def play(%State{ tally: %{ game_state: :won } }) do
+        exit_with_message("you won")
+    end
+    
+    def play(%State{ tally: %{ game_state: :lost } }) do
+        exit_with_message("you lost")
+    end
 
     def play(game = %State{ tally: %{ game_state: :good_guess } }) do
         continue_with_message(game, "good guess")
@@ -12,24 +17,18 @@ defmodule TextClient.Player do
         continue_with_message(game, "bad guess")
     end
 
-    def play(game = %State{ tally: %{ game_state: :invalid_move } }) do
-        continue_with_message(game, "invalid move")
-    end
-
     def play(game = %State{ tally: %{ game_state: :already_used } }) do
         continue_with_message(game, "already used")
-    end
-    
-    def play(%State{ tally: %{ game_state: :won } }) do
-        exit_with_message("you won")
-    end
-    
-    def play(%State{ tally: %{ game_state: :lost } }) do
-        exit_with_message("you lost")
     end
 
     def play(game) do
         continue(game)
+    end
+
+    defp exit_with_message(message) do
+        IO.puts(message)
+
+        exit(:normal)
     end
 
     defp continue_with_message(game, message) do
@@ -42,7 +41,6 @@ defmodule TextClient.Player do
         game
             |> display()
             |> prompt()
-            |> IO.inspect()
             |> make_move()
             |> play()
     end
@@ -107,13 +105,13 @@ defmodule TextClient.Player do
         prompt(game)
     end
 
-    defp make_move(game) do
-        game
-    end
-    
-    defp exit_with_message(message) do
-        IO.puts(message)
+    defp make_move(game = %State{ game_service: game_service, guess: guess }) do
+        { game_service, tally } = Hangman.make_move(game_service, guess)
 
-        exit(:normal)
+        %State{ game |
+            game_service: game_service,
+            tally: tally,
+            guess: ""
+        }
     end
 end
