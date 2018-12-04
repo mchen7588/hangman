@@ -46,12 +46,20 @@ defmodule TextClient.Player do
             |> play()
     end
 
-    defp display(game) do
-        game
+    defp display(game = %State{ tally: tally }) do
+        IO.puts [
+            "\n",
+            "game progress: #{Enum.join(tally.letters, " ")}",
+            "\n",
+            "guesses left: #{tally.turns_left}",
+            "\n"
+        ]
     end
 
     defp prompt(game) do
-        game
+        user_input = IO.gets("your guess: ")
+        IO.inspect user_input
+        exit :normal 
     end
 
     defp make_move(game) do
