@@ -40,44 +40,14 @@ defmodule Hangman.Game do
     end
 
     defp calculate_game_state(game, guess) do
-        accept_move(game, String.downcase(guess), MapSet.member?(game.used, guess), validate_move(guess))
+        accept_move(game, String.downcase(guess), MapSet.member?(game.used, guess))
     end
 
-    defp validate_move(guess) do
-        :is_valid
-            |> validate(only_one_character?(guess))
-            |> validate(is_valid_letter?(guess))
-    end
-
-    defp only_one_character?(string) do
-        String.length(string) == 1
-    end
-
-    defp is_valid_letter?(string) do
-        string =~ ~r(^[a-zA-Z]*$)
-    end
-
-    defp validate(_validity = :is_valid, _is_valid? = true) do
-        :is_valid
-    end
-
-    defp validate(_validity = :is_valid, _is_valid? = false) do
-        :not_valid
-    end
-
-    defp validate(validity = _not_valid, _is_valid) do
-        validity
-    end
-
-    defp accept_move(game, _guess, _already_guessed, _is_move_valid? = :not_valid) do
-        Map.put(game, :game_state, :invalid_move)
-    end
-
-    defp accept_move(game, _guess, _already_guessed = true, _is_move_valid? = :is_valid) do
+    defp accept_move(game, _guess, _already_guessed = true) do
         Map.put(game, :game_state, :already_used)
     end
 
-    defp accept_move(game, guess, _already_guessed = false, _is_move_valid? = :is_valid) do
+    defp accept_move(game, guess, _already_guessed = false) do
         Map.put(game, :used, MapSet.put(game.used, guess))
             |> score_guess(Enum.member?(game.letters, guess))
     end

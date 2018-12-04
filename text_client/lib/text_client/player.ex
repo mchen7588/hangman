@@ -42,6 +42,7 @@ defmodule TextClient.Player do
         game
             |> display()
             |> prompt()
+            |> IO.inspect()
             |> make_move()
             |> play()
     end
@@ -54,12 +55,56 @@ defmodule TextClient.Player do
             "guesses left: #{tally.turns_left}",
             "\n"
         ]
+
+        game
     end
 
     defp prompt(game) do
-        user_input = IO.gets("your guess: ")
-        IO.inspect user_input
-        exit :normal 
+        IO.gets("your guess: ")
+            |> String.trim()
+            |> check_input(game)
+
+    end
+
+    defp check_input({ :error, reason }, _) do
+        IO.puts("game crashed: #{reason}")
+    end
+
+    defp check_input(:eof, _) do
+        IO.puts("game crashed")
+    end
+
+    defp check_input(input, game) do
+        validator = :is_valid
+            |> validate(is_single_lowercase_letter?(input))
+
+        accept_input(input, game, validator)
+    end
+
+    defp is_single_lowercase_letter?(string) do
+        string =~ ~r/\A[a-zA-Z]\z/
+    end
+
+    defp validate(_validity = :is_valid, _is_valid? = true) do
+        :is_valid
+    end
+
+    defp validate(_validity = :is_valid, _is_valid? = false) do
+        :not_valid
+    end
+
+    defp validate(validity = _not_valid, _is_valid) do
+        validity
+    end
+
+    defp accept_input(input, game, :is_valid) do
+        Map.put(game, :guess, String.downcase(input))
+    end
+
+    defp accept_input(_input, game, _is_valid) do
+        IO.puts("please enter a valid letter")
+
+        prompt(game)
     end
 
     defp make_move(game) do
