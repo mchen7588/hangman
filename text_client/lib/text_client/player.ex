@@ -1,12 +1,12 @@
 defmodule TextClient.Player do
     alias TextClient.State
 
-    def play(%State{ tally: %{ game_state: :won } }) do
-        exit_with_message("you won")
+    def play(%State{ tally: %{ game_state: :won, letters: letters } }) do
+        exit_with_message("you won, correct answer is: #{letters}")
     end
     
-    def play(%State{ tally: %{ game_state: :lost } }) do
-        exit_with_message("you lost")
+    def play(game = %State{ tally: %{ game_state: :lost, answer: answer } }) do
+        exit_with_message("you lost, correct answer is: #{answer}")
     end
 
     def play(game = %State{ tally: %{ game_state: :good_guess } }) do

@@ -3,7 +3,8 @@ defmodule Hangman.Game do
         turns_left: 7,
         game_state: :initializing,
         letters: [],
-        used: MapSet.new()
+        used: MapSet.new(),
+        answer: []
     )
 
     # Public
@@ -31,7 +32,8 @@ defmodule Hangman.Game do
             game_state: game.game_state,
             turns_left: game.turns_left,
             letters: game.letters |> reveal_guessed(game.used),
-            used: game.used
+            used: game.used,
+            answer: game.answer
         }
     end
 
@@ -65,6 +67,9 @@ defmodule Hangman.Game do
 
     defp score_guess(game = %{ turns_left: 1 }, _letter_not_exist) do
         Map.put(game, :game_state, :lost)
+        %{ game |
+            game_state: :lost,
+            answer: game.letters }
     end
 
     defp score_guess(game = %{ turns_left: turns_left }, _letter_not_exist) do
