@@ -50,8 +50,10 @@ defmodule TextClient.Player do
             "\n",
             "game progress: #{Enum.join(tally.letters, " ")}",
             "\n",
+            "letters used: #{tally.used |> MapSet.to_list() |> Enum.join(" ")}",
+            "\n",
             "guesses left: #{tally.turns_left}",
-            "\n"
+            "\n",
         ]
 
         game
