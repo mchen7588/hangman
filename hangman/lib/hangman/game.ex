@@ -10,8 +10,7 @@ defmodule Hangman.Game do
     # Public
 
     def new_game() do
-        Dictionary.start
-            |> Dictionary.random_word()
+        Dictionary.random_word()
             |> new_game()
     end
 
@@ -66,7 +65,6 @@ defmodule Hangman.Game do
     end
 
     defp score_guess(game = %{ turns_left: 1 }, _letter_not_exist) do
-        Map.put(game, :game_state, :lost)
         %{ game |
             game_state: :lost,
             answer: game.letters }
