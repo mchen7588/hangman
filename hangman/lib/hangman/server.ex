@@ -18,5 +18,9 @@ defmodule Hangman.Server do
         
     end
 
+    def handle_call({ :tally }, _from, state) do
+        { :reply, Game.tally(state), state }
+
+    end
     
 end
